@@ -1,1 +1,349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سوبر ماركت جي جي - JJ's Supermarket</title>
+    <style>
+        :root {
+            --primary-yellow: #FFD700;
+            --dark-bg: #121212;
+            --card-bg: #ffffff;
+            --text-main: #222222;
+            --text-muted: #666666;
+            --transition-speed: 0.3s;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #FFE53B 0%, #FF2525 100%);
+            background-color: var(--primary-yellow);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            min-height: 650px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            padding: 30px;
+            flex: 1;
+            animation: fadeIn var(--transition-speed) ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logo Area */
+        .logo-box {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-box img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            background: var(--dark-bg);
+            border-radius: 50%;
+            padding: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        /* Welcome Screen */
+        .welcome-content {
+            text-align: center;
+            margin: auto 0;
+        }
+
+        .welcome-content h1 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .welcome-content p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #eaeaea;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #fafafa;
+        }
+
+        .form-control:focus {
+            border-color: #000;
+            background: #fff;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-yellow);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+            transition: transform 0.2s, background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background-color: #f3cc00;
+            transform: translateY(-2px);
+        }
+
+        /* Branch Selector Cards */
+        .branches-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .branch-card {
+            border: 2px solid #eaeaea;
+            border-radius: 14px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .branch-card:hover, .branch-card.selected {
+            border-color: #000;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .branch-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .branch-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Footer Copyright */
+        .app-footer {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 15px 0 5px 0;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- 1. شاشة الترحيب -->
+        <div id="welcome-screen" class="screen active">
+            <div class="logo-box">
+                <!-- استخدام أيقونة معبرة أو مسار الشعار -->
+                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFD700'><path d='M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 17H5V8h14v12z'/></svg>" alt="JJ's Logo">
+            </div>
+            <div class="welcome-content">
+                <h2 style="font-size: 22px; margin-bottom: 5px;">أهلاً وسهلاً بكم</h2>
+                <h1 style="color: #d4af37; margin-bottom: 15px;">سوبر ماركت جي جي</h1>
+                <p>مساعد التسوق الذكي الخاص بك هنا! <br>تعرف على نحلتنا الودودة التي ستساعدك في العثور على المنتجات واختيارها باستخدام الصوت أو النص.</p>
+                <button class="btn-primary" onclick="goToScreen('login-screen')">ابدأ التسوق</button>
+            </div>
+            <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
+        </div>
+
+        <!-- 2. شاشة تسجيل الدخول -->
+        <div id="login-screen" class="screen">
+            <div class="logo-box" style="margin-bottom: 10px;">
+                <div style="font-size: 32px; background: #FFD700; width: 60px; height: 60px; line-height: 60px; border-radius: 50%; margin: 0 auto; font-weight: bold;">🔒</div>
+            </div>
+            <h2 style="text-align: center; margin-bottom: 5px;">مرحبًا بعودتك</h2>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 25px;">أدخل بيانات اعتمادك للوصول إلى حسابك</p>
+            
+            <div class="form-group">
+                <label>عنوان البريد الإلكتروني</label>
+                <input type="email" id="email" class="form-control" placeholder="name@example.com">
+            </div>
+
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="password" class="form-control" placeholder="••••••••">
+            </div>
+
+            <button class="btn-primary" onclick="handleLogin()">تسجيل الدخول</button>
+            <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
+        </div>
+
+        <!-- 3. شاشة اختيار الفرع -->
+        <div id="branch-screen" class="screen">
+            <h2 style="text-align: center; margin-bottom: 5px;">اختر الفرع الأقرب لك</h2>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">حدد الفرع المناسب لتوفير المنتجات والأسعار المحدثة</p>
+            
+            <div class="branches-grid">
+                <div class="branch-card" onclick="selectBranch('الفرع الرئيسي - العبدلي', this)">
+                    <div class="branch-info">
+                        <h3>الفرع الرئيسي (العبدلي)</h3>
+                        <p>شارع الملك حسين، بجوار المركز التجاري</p>
+                    </div>
+                    <span style="font-size: 20px;">📍</span>
+                </div>
+
+                <div class="branch-card" onclick="selectBranch('فرع الجاردنز', this)">
+                    <div class="branch-info">
+                        <h3>فرع الجاردنز</h3>
+                        <p>شارع مكة، مجمع النخيل التجاري</p>
+                    </div>
+                    <span style="font-size: 20px;">📍</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="confirm-branch-btn" onclick="proceedToStore()" disabled style="opacity: 0.5; cursor: not-allowed;">تأكيد والمتابعة للمتجر</button>
+            <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
+        </div>
+
+        <!-- 4. شاشة المتجر الرئيسية -->
+        <div id="store-screen" class="screen">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                <div>
+                    <h3 style="font-size: 18px;" id="current-branch-title">JJ's Supermarket</h3>
+                    <p style="font-size: 12px; color: var(--text-muted);" id="user-branch-display">الفرع المختار</p>
+                </div>
+                <button onclick="logout()" style="background: none; border: none; color: #ff2525; font-weight: bold; cursor: pointer; font-size: 13px;">خروج</button>
+            </div>
+
+            <div style="text-align: center; margin: auto 0; padding: 20px 0;">
+                <div style="font-size: 50px; margin-bottom: 15px;">🐝</div>
+                <h2>أهلاً بك في متجرنا الذكي!</h2>
+                <p style="color: var(--text-muted); margin-top: 10px; font-size: 14px;">نحلة "غوغي" جاهزة لمساعدتك في تسوق كافة احتياجاتك بكل سهولة وسرعة.</p>
+                <div style="margin-top: 25px; padding: 15px; background: #fffde7; border-radius: 12px; border: 1px dashed var(--primary-yellow);">
+                    <p style="font-weight: 600; font-size: 13px;">🛒 قسم المنتجات والعروض قيد التفعيل...</p>
+                </div>
+            </div>
+            <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedBranchName = "";
+
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if(!email || !password) {
+                alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور للمتابعة.');
+                return;
+            }
+
+            // الانتقال مباشرة لصفحة اختيار الفرع بعد تسجيل الدخول بنجاح
+            goToScreen('branch-screen');
+        }
+
+        function selectBranch(branchName, element) {
+            document.querySelectorAll('.branch-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedBranchName = branchName;
+            
+            const btn = document.getElementById('confirm-branch-btn');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        }
+
+        function proceedToStore() {
+            if(!selectedBranchName) return;
+            
+            // حفظ الفرع في الذاكرة المحلية
+            localStorage.setItem('jj_selected_branch', selectedBranchName);
+            document.getElementById('current-branch-title').innerText = "سوبر ماركت جي جي";
+            document.getElementById('user-branch-display').innerText = "الفرع: " + selectedBranchName;
+            
+            goToScreen('store-screen');
+        }
+
+        function logout() {
+            localStorage.removeItem('jj_selected_branch');
+            goToScreen('welcome-screen');
+        }
+
+        // التحقق المسبق إذا كان العميل قد اختار فرعاً من قبل
+        window.onload = function() {
+            const savedBranch = localStorage.getItem('jj_selected_branch');
+            if(savedBranch) {
+                selectedBranchName = savedBranch;
+                document.getElementById('user-branch-display').innerText = "الفرع: " + savedBranch;
+                // يمكننا توجيهه مباشرة للمتجر إذا رغبت، أو إبقاؤه يبدأ من الترحيب
+            }
+        }
+    </script>
+</body>
+</html>
