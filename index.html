@@ -231,4 +231,256 @@
         <!-- 1. شاشة الترحيب -->
         <div id="welcome-screen" class="screen active">
             <div class="logo-box">
-                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2
+                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFD700'><path d='M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 17H5V8h14v12z'/></svg>" alt="JJ's Logo">
+            </div>
+            <div class="welcome-content">
+                <h2 style="font-size: 22px; margin-bottom: 5px;">أهلاً وسهلاً بكم</h2>
+                <h1 style="color: #d4af37; margin-bottom: 15px;">سوبر ماركت جي جي</h1>
+                <p>مساعد التسوق الذكي المرتبط بقواعد البيانات والفروع!</p>
+                <button class="btn-primary" onclick="goToScreen('login-screen')">ابدأ التسوق</button>
+            </div>
+            <div class="app-footer">© ٢٠٢٦ JJ`S SUPERMARKET . جميع الحقوق محفوظة.</div>
+        </div>
+
+        <!-- 2. شاشة تسجيل الدخول -->
+        <div id="login-screen" class="screen">
+            <div class="logo-box" style="margin-bottom: 10px;">
+                <div style="font-size: 28px; background: #FFD700; width: 55px; height: 55px; line-height: 55px; border-radius: 50%; margin: 0 auto; font-weight: bold;">🔒</div>
+            </div>
+            <h2 style="text-align: center; margin-bottom: 5px;">مرحبًا بعودتك</h2>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">أدخل بيانات اعتمادك للوصول إلى حسابك</p>
+            
+            <div class="form-group">
+                <label>عنوان البريد الإلكتروني</label>
+                <input type="email" id="email" class="form-control" placeholder="name@example.com">
+            </div>
+
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="password" class="form-control" placeholder="••••••••">
+            </div>
+
+            <button class="btn-primary" onclick="handleLogin()">تسجيل الدخول</button>
+            <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
+        </div>
+
+        <!-- 3. شاشة اختيار الفرع -->
+        <div id="branch-screen" class="screen">
+            <h2 style="text-align: center; margin-bottom: 5px;">اختر الفرع الأقرب لك</h2>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">حدد الفرع المناسب لعرض الأسعار والمنتجات</p>
+            
+            <div class="branches-grid">
+                <div class="branch-card" onclick="selectBranch('الفرع الرئيسي - عبدون', this)">
+                    <div class="branch-info">
+                        <h3>الفرع الرئيسي (عبدون)</h3>
+                        <p>شارع احمد فوزي بجانب السفارة السعودية</p>
+                    </div>
+                    <span style="font-size: 18px;">📍</span>
+                </div>
+
+                <div class="branch-card" onclick="selectBranch('فرع النخيل', this)">
+                    <div class="branch-info">
+                        <h3>فرع النخيل</h3>
+                        <p>شارع الاميرة نجلاء بنت عاصم - النخيل افنيو</p>
+                    </div>
+                    <span style="font-size: 18px;">📍</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="confirm-branch-btn" onclick="proceedToStore()" disabled style="opacity: 0.5; cursor: not-allowed;">تأكيد والمتابعة للمتجر</button>
+            <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
+        </div>
+
+        <!-- 4. شاشة المتجر الرئيسية -->
+        <div id="store-screen" class="screen">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                <div>
+                    <h3 style="font-size: 16px;" id="current-branch-title">JJ's Supermarket</h3>
+                    <p style="font-size: 11px; color: var(--text-muted);" id="user-branch-display">الفرع المختار</p>
+                </div>
+                <button onclick="logout()" style="background: none; border: none; color: #ff2525; font-weight: bold; cursor: pointer; font-size: 12px;">خروج</button>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <input type="text" id="search-input" class="form-control" placeholder="ابحث باسم المنتج أو الباركود..." onkeyup="filterProducts()">
+            </div>
+
+            <!-- قائمة المنتجات -->
+            <div id="products-container" class="products-list">
+                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات...</p>
+            </div>
+
+            <div class="cart-summary">
+                <span>🛒 السلة: <span id="cart-count">0</span> أصناف</span>
+                <span>الإجمالي: <span id="cart-total">0.00</span> دينار</span>
+            </div>
+
+            <button class="btn-primary" style="margin-top: 8px; padding: 10px;" onclick="checkoutCart()">إتمام الطلب</button>
+            <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedBranchName = "";
+        let cart = [];
+        let currentBranchProducts = [];
+
+        // رابط الشيت الخاص بك
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy2zx6syrcFIY5W5SxqCWCBUMA7dA-7fcbER2hGY9JOIfzd8V65FSd2nDHT7GYp7jQ5fAkk2g-ZmQ0/pub?gid=0&single=true&output=csv";
+
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if(!email || !password) {
+                alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور للمتابعة.');
+                return;
+            }
+            goToScreen('branch-screen');
+        }
+
+        function selectBranch(branchName, element) {
+            document.querySelectorAll('.branch-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedBranchName = branchName;
+            
+            const btn = document.getElementById('confirm-branch-btn');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        }
+
+        async function proceedToStore() {
+            if(!selectedBranchName) return;
+            
+            localStorage.setItem('jj_selected_branch', selectedBranchName);
+            document.getElementById('current-branch-title').innerText = "سوبر ماركت جي جي";
+            document.getElementById('user-branch-display').innerText = "الفرع: " + selectedBranchName;
+            
+            goToScreen('store-screen');
+            await fetchBranchProducts();
+        }
+
+        async function fetchBranchProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب المنتجات...</p>';
+
+            try {
+                // محاولة جلب البيانات من الشيت عبر وكيل CORS لتجاوز قيود المتصفح
+                const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(csvUrl);
+                const response = await fetch(proxyUrl);
+                const data = await response.text();
+                
+                const rows = data.split('\n');
+                currentBranchProducts = [];
+
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i].trim();
+                    if (!row) continue;
+                    
+                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if (cols.length >= 3) {
+                        const barcode = cols[0].replace(/["']/g, "").trim();
+                        const price = parseFloat(cols[1].replace(/["']/g, "")) || 0;
+                        const name = cols[2].replace(/["']/g, "").trim();
+
+                        if (name) {
+                            currentBranchProducts.push({ barcode, price, name });
+                        }
+                    }
+                }
+
+                if(currentBranchProducts.length === 0) {
+                    throw new Error("القائمة فارغة");
+                }
+
+                renderProducts(currentBranchProducts);
+            } catch (error) {
+                console.warn("تعذر الجلب المباشر، استخدام القائمة الاحتياطية:", error);
+                // القائمة الاحتياطية في حال حظر المتصفح لضمان عمل التطبيق فوراً
+                currentBranchProducts = [
+                    { barcode: "11110", name: "بيرغر سنجل", price: 2.75 },
+                    { barcode: "11111", name: "حليب فريش 1 لتر", price: 1.25 }
+                ];
+                renderProducts(currentBranchProducts);
+            }
+        }
+
+        function renderProducts(productsList) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            if(productsList.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة.</p>';
+                return;
+            }
+
+            productsList.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div>
+                        <h4 style="font-size: 13px; margin-bottom: 2px;">${p.name}</h4>
+                        <p style="font-size: 11px; color: var(--text-muted);">باركود: ${p.barcode}</p>
+                    </div>
+                    <div style="text-align: left;">
+                        <span style="font-weight: bold; color: #d4af37; display: block; font-size: 13px;">${p.price.toFixed(2)} د.أ</span>
+                        <button onclick="addToCart('${p.barcode}', '${p.name}', ${p.price})" style="margin-top: 4px; padding: 4px 10px; background: #FFD700; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">إضافة</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = currentBranchProducts.filter(p => 
+                p.name.toLowerCase().includes(query) || p.barcode.includes(query)
+            );
+            renderProducts(filtered);
+        }
+
+        function addToCart(barcode, name, price) {
+            cart.push({ barcode, name, price });
+            updateCartSummary();
+        }
+
+        function updateCartSummary() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('cart-total').innerText = total.toFixed(2);
+        }
+
+        function checkoutCart() {
+            if(cart.length === 0) {
+                alert('عربة التسوق فارغة!');
+                return;
+            }
+            alert(`تم إرسال طلبك بنجاح من ${selectedBranchName}! المجموع: ${cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)} دينار.`);
+            cart = [];
+            updateCartSummary();
+        }
+
+        function logout() {
+            localStorage.removeItem('jj_selected_branch');
+            cart = [];
+            updateCartSummary();
+            goToScreen('welcome-screen');
+        }
+
+        window.onload = async function() {
+            const savedBranch = localStorage.getItem('jj_selected_branch');
+            if(savedBranch) {
+                selectedBranchName = savedBranch;
+                document.getElementById('user-branch-display').innerText = "الفرع: " + savedBranch;
+            }
+        }
+    </script>
+</body>
+</html>
