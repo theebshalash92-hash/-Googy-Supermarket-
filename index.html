@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JJ's Supermarket</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root {
             --primary-yellow: #FFD700;
@@ -182,7 +181,6 @@
             color: var(--text-muted);
         }
 
-        /* تصاميم قسم المنتجات والمجموعات */
         .products-list {
             flex: 1;
             overflow-y: auto;
@@ -212,11 +210,6 @@
             background: #fafafa;
             border: 1px solid #eaeaea;
             border-radius: 12px;
-            transition: transform 0.2s;
-        }
-
-        .product-card:hover {
-            border-color: #d4af37;
         }
 
         .product-img {
@@ -291,7 +284,7 @@
             <div class="welcome-content">
                 <h2 style="font-size: 22px; margin-bottom: 5px;">أهلاً وسهلاً بكم</h2>
                 <h1 style="color: #d4af37; margin-bottom: 15px;">سوبر ماركت جي جي</h1>
-                <p>مساعد التسوق الذكي لعرض المنتجات والأقسام والأسعار!</p>
+                <p>مساعد التسوق الذكي المرتبط بقاعدة بيانات جوجل شيت!</p>
                 <button class="btn-primary" onclick="goToScreen('login-screen')">ابدأ التسوق</button>
             </div>
             <div class="app-footer">© ٢٠٢٦ JJ`S SUPERMARKET . جميع الحقوق محفوظة.</div>
@@ -360,7 +353,7 @@
                 <input type="text" id="search-input" class="form-control" placeholder="ابحث باسم المنتج أو الباركود..." onkeyup="filterProducts()">
             </div>
 
-            <!-- قائمة المنتجات مقسمة لمجموعات -->
+            <!-- قائمة المنتجات -->
             <div id="products-container" class="products-list">
                 <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات والأقسام...</p>
             </div>
@@ -381,7 +374,8 @@
         let cart = [];
         let currentBranchProducts = [];
 
-        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy2zx6syrcFIY5W5SxqCWCBUMA7dA-7fcbER2hGY9JOIfzd8V65FSd2nDHT7GYp7jQ5fAkk2g-ZmQ0/pub?gid=0&single=true&output=csv";
+        // رابط Web App الخاص بـ Google Apps Script الذي قمت بنشره
+        const sheetApiUrl = "https://script.google.com/macros/s/AKfycbzhejoc5BTtchd3Xj_mKa6DmCM8sXJljb2sVArJQ0a12FZtVcWOmv5ochsCFKEQvGVVrQ/exec";
 
         function goToScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -418,55 +412,30 @@
             document.getElementById('user-branch-display').innerText = "الفرع: " + selectedBranchName;
             
             goToScreen('store-screen');
-            fetchBranchProducts();
+            await fetchBranchProducts();
         }
 
-        function fetchBranchProducts() {
+        async function fetchBranchProducts() {
             const container = document.getElementById('products-container');
-            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب المنتجات...</p>';
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب المنتجات من الشيت...</p>';
 
-            Papa.parse(csvUrl, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    currentBranchProducts = [];
+            try {
+                const response = await fetch(sheetApiUrl);
+                const data = await response.json();
+                
+                currentBranchProducts = data.map(item => ({
+                    barcode: item.barcode ? item.barcode.toString() : '',
+                    price: parseFloat(item.price) || 0,
+                    name: item.name ? item.name.toString() : '',
+                    group: item.group ? item.group.toString() : 'المواد العامة',
+                    image: item.image ? item.image.toString() : 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'
+                }));
 
-                    results.data.forEach(row => {
-                        const barcode = row.Bracode ? row.Bracode.toString().trim() : '';
-                        const price = row.Price ? parseFloat(row.Price) || 0 : 0;
-                        const name = row.name ? row.name.toString().trim() : '';
-                        // تصنيف افتراضي أو مسح من الشيت إن وجد
-                        let group = row.group ? row.group.toString().trim() : 'المواد العامة';
-                        let contentImg = row.Content ? row.Content.toString().trim() : 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60';
-
-                        if (name || barcode) {
-                            currentBranchProducts.push({ barcode, price, name, group, image: contentImg });
-                        }
-                    });
-
-                    // إذا كان الشيت فارغاً أو تعذر القراءة، نستخدم القائمة النموذجية المجهزة بالصور والأقسام
-                    if(currentBranchProducts.length === 0) {
-                        loadFallbackProducts();
-                    } else {
-                        renderGroupedProducts(currentBranchProducts);
-                    }
-                },
-                error: function(err) {
-                    console.warn("استخدام القائمة الاحتياطية المزودة بالصور والأقسام");
-                    loadFallbackProducts();
-                }
-            });
-        }
-
-        function loadFallbackProducts() {
-            currentBranchProducts = [
-                { barcode: "11110", name: "بيرغر سنجل طازج", price: 2.75, group: "الوجبات السريعة واللحوم", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100&auto=format&fit=crop&q=60" },
-                { barcode: "11111", name: "حليب فريش طازج 1 لتر", price: 1.25, group: "الألبان والأجبان", image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100&auto=format&fit=crop&q=60" },
-                { barcode: "11112", name: "خبز عربي محلي", price: 0.50, group: "المخبوزات والحلويات", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&auto=format&fit=crop&q=60" },
-                { barcode: "11113", name: "عصير برتقال طبيعي 1 لتر", price: 1.75, group: "المشروبات والعصائر", image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=100&auto=format&fit=crop&q=60" }
-            ];
-            renderGroupedProducts(currentBranchProducts);
+                renderGroupedProducts(currentBranchProducts);
+            } catch (error) {
+                console.error("خطأ في الاتصال:", error);
+                container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر جلب المنتجات من الشيت، تأكد من صحة الرابط.</p>';
+            }
         }
 
         function renderGroupedProducts(productsList) {
@@ -478,7 +447,6 @@
                 return;
             }
 
-            // تجميع المنتجات حسب المجموعة (Group)
             const groups = {};
             productsList.forEach(p => {
                 if(!groups[p.group]) {
@@ -487,7 +455,6 @@
                 groups[p.group].push(p);
             });
 
-            // عرض المجموعات والأصناف بداخلها
             for (const [groupName, items] of Object.entries(groups)) {
                 const groupHeader = document.createElement('div');
                 groupHeader.className = 'category-title';
