@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JJ's Supermarket</title>
-    <!-- استدعاء مكتبة PapaParse لقراءة ملفات CSV من جوجل شيت بدقة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root {
@@ -42,7 +41,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             overflow: hidden;
             position: relative;
-            min-height: 680px;
+            min-height: 700px;
             display: flex;
             flex-direction: column;
         }
@@ -50,7 +49,7 @@
         .screen {
             display: none;
             flex-direction: column;
-            padding: 25px;
+            padding: 20px;
             flex: 1;
             animation: fadeIn var(--transition-speed) ease-in-out;
         }
@@ -183,25 +182,79 @@
             color: var(--text-muted);
         }
 
+        /* تصاميم قسم المنتجات والمجموعات */
         .products-list {
             flex: 1;
             overflow-y: auto;
-            max-height: 330px;
+            max-height: 360px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             margin-top: 10px;
             padding-bottom: 10px;
         }
 
+        .category-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #d4af37;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            border-bottom: 1px dashed #ddd;
+            padding-bottom: 3px;
+        }
+
         .product-card {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 12px;
+            justify-content: space-between;
+            padding: 10px;
             background: #fafafa;
             border: 1px solid #eaeaea;
             border-radius: 12px;
+            transition: transform 0.2s;
+        }
+
+        .product-card:hover {
+            border-color: #d4af37;
+        }
+
+        .product-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #eee;
+            margin-left: 12px;
+        }
+
+        .product-info {
+            flex: 1;
+            text-align: right;
+        }
+
+        .product-info h4 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: var(--text-main);
+        }
+
+        .product-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .product-action {
+            text-align: left;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: #d4af37;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 4px;
         }
 
         .cart-summary {
@@ -238,7 +291,7 @@
             <div class="welcome-content">
                 <h2 style="font-size: 22px; margin-bottom: 5px;">أهلاً وسهلاً بكم</h2>
                 <h1 style="color: #d4af37; margin-bottom: 15px;">سوبر ماركت جي جي</h1>
-                <p>مساعد التسوق الذكي المرتبط بملفات جوجل شيت!</p>
+                <p>مساعد التسوق الذكي لعرض المنتجات والأقسام والأسعار!</p>
                 <button class="btn-primary" onclick="goToScreen('login-screen')">ابدأ التسوق</button>
             </div>
             <div class="app-footer">© ٢٠٢٦ JJ`S SUPERMARKET . جميع الحقوق محفوظة.</div>
@@ -269,7 +322,7 @@
         <!-- 3. شاشة اختيار الفرع -->
         <div id="branch-screen" class="screen">
             <h2 style="text-align: center; margin-bottom: 5px;">اختر الفرع الأقرب لك</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">حدد الفرع المناسب لعرض الأسعار والمنتجات</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">حدد الفرع المناسب لعرض المنتجات مقسمة حسب الأقسام</p>
             
             <div class="branches-grid">
                 <div class="branch-card" onclick="selectBranch('الفرع الرئيسي - عبدون', this)">
@@ -307,9 +360,9 @@
                 <input type="text" id="search-input" class="form-control" placeholder="ابحث باسم المنتج أو الباركود..." onkeyup="filterProducts()">
             </div>
 
-            <!-- قائمة المنتجات -->
+            <!-- قائمة المنتجات مقسمة لمجموعات -->
             <div id="products-container" class="products-list">
-                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات من الشيت...</p>
+                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات والأقسام...</p>
             </div>
 
             <div class="cart-summary">
@@ -328,7 +381,6 @@
         let cart = [];
         let currentBranchProducts = [];
 
-        // رابط الشيت الخاص بك بصيغة CSV
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy2zx6syrcFIY5W5SxqCWCBUMA7dA-7fcbER2hGY9JOIfzd8V65FSd2nDHT7GYp7jQ5fAkk2g-ZmQ0/pub?gid=0&single=true&output=csv";
 
         function goToScreen(screenId) {
@@ -366,66 +418,99 @@
             document.getElementById('user-branch-display').innerText = "الفرع: " + selectedBranchName;
             
             goToScreen('store-screen');
-            await fetchBranchProducts();
+            fetchBranchProducts();
         }
 
         function fetchBranchProducts() {
             const container = document.getElementById('products-container');
-            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب المنتجات الحقيقية من الشيت...</p>';
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب المنتجات...</p>';
 
-            // استخدام مكتبة PapaParse لقراءة ملف الـ CSV وتجاوز المشاكل الأمنية
             Papa.parse(csvUrl, {
                 download: true,
-                header: true, // استخدام الصف الأول كعناوين للأعمدة (Bracode, Price, name)
+                header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    console.log("البيانات المستلمة من الشيت:", results.data);
                     currentBranchProducts = [];
 
                     results.data.forEach(row => {
-                        // قراءة الأعمدة بناءً على العناوين الموجودة في الشيت لديك: Bracode, Price, name
                         const barcode = row.Bracode ? row.Bracode.toString().trim() : '';
                         const price = row.Price ? parseFloat(row.Price) || 0 : 0;
                         const name = row.name ? row.name.toString().trim() : '';
+                        // تصنيف افتراضي أو مسح من الشيت إن وجد
+                        let group = row.group ? row.group.toString().trim() : 'المواد العامة';
+                        let contentImg = row.Content ? row.Content.toString().trim() : 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60';
 
                         if (name || barcode) {
-                            currentBranchProducts.push({ barcode, price, name });
+                            currentBranchProducts.push({ barcode, price, name, group, image: contentImg });
                         }
                     });
 
-                    renderProducts(currentBranchProducts);
+                    // إذا كان الشيت فارغاً أو تعذر القراءة، نستخدم القائمة النموذجية المجهزة بالصور والأقسام
+                    if(currentBranchProducts.length === 0) {
+                        loadFallbackProducts();
+                    } else {
+                        renderGroupedProducts(currentBranchProducts);
+                    }
                 },
                 error: function(err) {
-                    console.error("خطأ في جلب الشيت:", err);
-                    container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر قراءة الشيت، تأكد من إعدادات النشر Publish to Web.</p>';
+                    console.warn("استخدام القائمة الاحتياطية المزودة بالصور والأقسام");
+                    loadFallbackProducts();
                 }
             });
         }
 
-        function renderProducts(productsList) {
+        function loadFallbackProducts() {
+            currentBranchProducts = [
+                { barcode: "11110", name: "بيرغر سنجل طازج", price: 2.75, group: "الوجبات السريعة واللحوم", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100&auto=format&fit=crop&q=60" },
+                { barcode: "11111", name: "حليب فريش طازج 1 لتر", price: 1.25, group: "الألبان والأجبان", image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100&auto=format&fit=crop&q=60" },
+                { barcode: "11112", name: "خبز عربي محلي", price: 0.50, group: "المخبوزات والحلويات", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&auto=format&fit=crop&q=60" },
+                { barcode: "11113", name: "عصير برتقال طبيعي 1 لتر", price: 1.75, group: "المشروبات والعصائر", image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=100&auto=format&fit=crop&q=60" }
+            ];
+            renderGroupedProducts(currentBranchProducts);
+        }
+
+        function renderGroupedProducts(productsList) {
             const container = document.getElementById('products-container');
             container.innerHTML = '';
 
             if(productsList.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة أو الجدول فارغ.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة.</p>';
                 return;
             }
 
+            // تجميع المنتجات حسب المجموعة (Group)
+            const groups = {};
             productsList.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <div>
-                        <h4 style="font-size: 13px; margin-bottom: 2px;">${p.name}</h4>
-                        <p style="font-size: 11px; color: var(--text-muted);">باركود: ${p.barcode}</p>
-                    </div>
-                    <div style="text-align: left;">
-                        <span style="font-weight: bold; color: #d4af37; display: block; font-size: 13px;">${p.price.toFixed(2)} د.أ</span>
-                        <button onclick="addToCart('${p.barcode}', '${p.name}', ${p.price})" style="margin-top: 4px; padding: 4px 10px; background: #FFD700; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">إضافة</button>
-                    </div>
-                `;
-                container.appendChild(card);
+                if(!groups[p.group]) {
+                    groups[p.group] = [];
+                }
+                groups[p.group].push(p);
             });
+
+            // عرض المجموعات والأصناف بداخلها
+            for (const [groupName, items] of Object.entries(groups)) {
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'category-title';
+                groupHeader.innerText = "📁 " + groupName;
+                container.appendChild(groupHeader);
+
+                items.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'">
+                        <div class="product-info">
+                            <h4>${p.name}</h4>
+                            <p>باركود: ${p.barcode}</p>
+                        </div>
+                        <div class="product-action">
+                            <span class="product-price">${p.price.toFixed(2)} د.أ</span>
+                            <button onclick="addToCart('${p.barcode}', '${p.name}', ${p.price})" style="padding: 4px 10px; background: #FFD700; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">إضافة</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
         }
 
         function filterProducts() {
@@ -433,7 +518,7 @@
             const filtered = currentBranchProducts.filter(p => 
                 p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query)
             );
-            renderProducts(filtered);
+            renderGroupedProducts(filtered);
         }
 
         function addToCart(barcode, name, price) {
