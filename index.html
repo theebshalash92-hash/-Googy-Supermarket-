@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JJ's Supermarket</title>
+    <!-- استدعاء مكتبة PapaParse لقراءة ملفات CSV من جوجل شيت بدقة -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root {
             --primary-yellow: #FFD700;
@@ -236,7 +238,7 @@
             <div class="welcome-content">
                 <h2 style="font-size: 22px; margin-bottom: 5px;">أهلاً وسهلاً بكم</h2>
                 <h1 style="color: #d4af37; margin-bottom: 15px;">سوبر ماركت جي جي</h1>
-                <p>مساعد التسوق الذكي المرتبط بقواعد البيانات والفروع!</p>
+                <p>مساعد التسوق الذكي المرتبط بملفات جوجل شيت!</p>
                 <button class="btn-primary" onclick="goToScreen('login-screen')">ابدأ التسوق</button>
             </div>
             <div class="app-footer">© ٢٠٢٦ JJ`S SUPERMARKET . جميع الحقوق محفوظة.</div>
@@ -307,7 +309,7 @@
 
             <!-- قائمة المنتجات -->
             <div id="products-container" class="products-list">
-                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات...</p>
+                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات من الشيت...</p>
             </div>
 
             <div class="cart-summary">
@@ -326,7 +328,7 @@
         let cart = [];
         let currentBranchProducts = [];
 
-        // رابط الشيت الخاص بك
+        // رابط الشيت الخاص بك بصيغة CSV
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy2zx6syrcFIY5W5SxqCWCBUMA7dA-7fcbER2hGY9JOIfzd8V65FSd2nDHT7GYp7jQ5fAkk2g-ZmQ0/pub?gid=0&single=true&output=csv";
 
         function goToScreen(screenId) {
@@ -367,49 +369,37 @@
             await fetchBranchProducts();
         }
 
-        async function fetchBranchProducts() {
+        function fetchBranchProducts() {
             const container = document.getElementById('products-container');
-            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب المنتجات...</p>';
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب المنتجات الحقيقية من الشيت...</p>';
 
-            try {
-                // محاولة جلب البيانات من الشيت عبر وكيل CORS لتجاوز قيود المتصفح
-                const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(csvUrl);
-                const response = await fetch(proxyUrl);
-                const data = await response.text();
-                
-                const rows = data.split('\n');
-                currentBranchProducts = [];
+            // استخدام مكتبة PapaParse لقراءة ملف الـ CSV وتجاوز المشاكل الأمنية
+            Papa.parse(csvUrl, {
+                download: true,
+                header: true, // استخدام الصف الأول كعناوين للأعمدة (Bracode, Price, name)
+                skipEmptyLines: true,
+                complete: function(results) {
+                    console.log("البيانات المستلمة من الشيت:", results.data);
+                    currentBranchProducts = [];
 
-                for (let i = 1; i < rows.length; i++) {
-                    const row = rows[i].trim();
-                    if (!row) continue;
-                    
-                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (cols.length >= 3) {
-                        const barcode = cols[0].replace(/["']/g, "").trim();
-                        const price = parseFloat(cols[1].replace(/["']/g, "")) || 0;
-                        const name = cols[2].replace(/["']/g, "").trim();
+                    results.data.forEach(row => {
+                        // قراءة الأعمدة بناءً على العناوين الموجودة في الشيت لديك: Bracode, Price, name
+                        const barcode = row.Bracode ? row.Bracode.toString().trim() : '';
+                        const price = row.Price ? parseFloat(row.Price) || 0 : 0;
+                        const name = row.name ? row.name.toString().trim() : '';
 
-                        if (name) {
+                        if (name || barcode) {
                             currentBranchProducts.push({ barcode, price, name });
                         }
-                    }
-                }
+                    });
 
-                if(currentBranchProducts.length === 0) {
-                    throw new Error("القائمة فارغة");
+                    renderProducts(currentBranchProducts);
+                },
+                error: function(err) {
+                    console.error("خطأ في جلب الشيت:", err);
+                    container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر قراءة الشيت، تأكد من إعدادات النشر Publish to Web.</p>';
                 }
-
-                renderProducts(currentBranchProducts);
-            } catch (error) {
-                console.warn("تعذر الجلب المباشر، استخدام القائمة الاحتياطية:", error);
-                // القائمة الاحتياطية في حال حظر المتصفح لضمان عمل التطبيق فوراً
-                currentBranchProducts = [
-                    { barcode: "11110", name: "بيرغر سنجل", price: 2.75 },
-                    { barcode: "11111", name: "حليب فريش 1 لتر", price: 1.25 }
-                ];
-                renderProducts(currentBranchProducts);
-            }
+            });
         }
 
         function renderProducts(productsList) {
@@ -417,7 +407,7 @@
             container.innerHTML = '';
 
             if(productsList.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة أو الجدول فارغ.</p>';
                 return;
             }
 
@@ -441,7 +431,7 @@
         function filterProducts() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const filtered = currentBranchProducts.filter(p => 
-                p.name.toLowerCase().includes(query) || p.barcode.includes(query)
+                p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query)
             );
             renderProducts(filtered);
         }
