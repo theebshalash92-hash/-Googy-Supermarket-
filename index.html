@@ -355,7 +355,7 @@
 
             <!-- قائمة المنتجات -->
             <div id="products-container" class="products-list">
-                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات والأقسام...</p>
+                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات والأقسام من جوجل شيت...</p>
             </div>
 
             <div class="cart-summary">
@@ -374,8 +374,8 @@
         let cart = [];
         let currentBranchProducts = [];
 
-        // رابط Web App الخاص بـ Google Apps Script الذي قمت بنشره
-        const sheetApiUrl = "https://script.google.com/macros/s/AKfycbzhejoc5BTtchd3Xj_mKa6DmCM8sXJljb2sVArJQ0a12FZtVcWOmv5ochsCFKEQvGVVrQ/exec";
+        // رابط Google Apps Script Web App المحدث
+        const sheetApiUrl = "https://script.google.com/macros/s/AKfycbyEqZCgPr9o8p62x8pQGl9XUWJ2iCqtTVuj0dMcjpK3lQq9I_i9tIdz_Qr4PusO6gl_tg/exec";
 
         function goToScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -434,7 +434,7 @@
                 renderGroupedProducts(currentBranchProducts);
             } catch (error) {
                 console.error("خطأ في الاتصال:", error);
-                container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر جلب المنتجات من الشيت، تأكد من صحة الرابط.</p>';
+                container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر جلب المنتجات من الشيت، تأكد من اتصال الإنترنت أو إذن النشر.</p>';
             }
         }
 
@@ -443,7 +443,7 @@
             container.innerHTML = '';
 
             if(productsList.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة أو الجدول فارغ.</p>';
                 return;
             }
 
