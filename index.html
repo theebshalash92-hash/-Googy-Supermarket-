@@ -62,7 +62,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Logo Area */
         .logo-box {
             text-align: center;
             margin-bottom: 15px;
@@ -78,7 +77,6 @@
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
 
-        /* Welcome Screen */
         .welcome-content {
             text-align: center;
             margin: auto 0;
@@ -98,7 +96,6 @@
             margin-bottom: 30px;
         }
 
-        /* Form Inputs */
         .form-group {
             margin-bottom: 18px;
             text-align: right;
@@ -128,7 +125,6 @@
             background: #fff;
         }
 
-        /* Buttons */
         .btn-primary {
             width: 100%;
             padding: 14px;
@@ -149,7 +145,6 @@
             transform: translateY(-2px);
         }
 
-        /* Branch Selector Cards */
         .branches-grid {
             display: flex;
             flex-direction: column;
@@ -186,11 +181,10 @@
             color: var(--text-muted);
         }
 
-        /* Store Screen Components */
         .products-list {
             flex: 1;
             overflow-y: auto;
-            max-height: 340px;
+            max-height: 330px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -212,8 +206,8 @@
             background: #fffde7;
             border: 1px dashed var(--primary-yellow);
             border-radius: 12px;
-            padding: 12px;
-            margin-top: 10px;
+            padding: 10px 12px;
+            margin-top: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -221,7 +215,6 @@
             font-weight: 600;
         }
 
-        /* Footer Copyright */
         .app-footer {
             text-align: center;
             font-size: 11px;
@@ -243,7 +236,7 @@
             <div class="welcome-content">
                 <h2 style="font-size: 22px; margin-bottom: 5px;">أهلاً وسهلاً بكم</h2>
                 <h1 style="color: #d4af37; margin-bottom: 15px;">سوبر ماركت جي جي</h1>
-                <p>مساعد التسوق الذكي الخاص بك هنا لاستعراض المواد والأسعار بكل سهولة!</p>
+                <p>مساعد التسوق الذكي المرتبط مباشرة بقاعدة بيانات جوجل شيت!</p>
                 <button class="btn-primary" onclick="goToScreen('login-screen')">ابدأ التسوق</button>
             </div>
             <div class="app-footer">© ٢٠٢٦ JJ`S SUPERMARKET . جميع الحقوق محفوظة.</div>
@@ -274,7 +267,7 @@
         <!-- 3. شاشة اختيار الفرع -->
         <div id="branch-screen" class="screen">
             <h2 style="text-align: center; margin-bottom: 5px;">اختر الفرع الأقرب لك</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">حدد الفرع لعرض المنتجات والأسعار المحدثة</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">جلب الأسعار والمنتجات المحدثة من جوجل شيت</p>
             
             <div class="branches-grid">
                 <div class="branch-card" onclick="selectBranch('الفرع الرئيسي - عبدون', this)">
@@ -298,9 +291,9 @@
             <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
         </div>
 
-        <!-- 4. شاشة المتجر الرئيسية مع عرض المنتجات -->
+        <!-- 4. شاشة المتجر الرئيسية -->
         <div id="store-screen" class="screen">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
                 <div>
                     <h3 style="font-size: 16px;" id="current-branch-title">JJ's Supermarket</h3>
                     <p style="font-size: 11px; color: var(--text-muted);" id="user-branch-display">الفرع المختار</p>
@@ -308,23 +301,21 @@
                 <button onclick="logout()" style="background: none; border: none; color: #ff2525; font-weight: bold; cursor: pointer; font-size: 12px;">خروج</button>
             </div>
 
-            <!-- شريط البحث بالباركود أو الاسم -->
-            <div style="margin-bottom: 10px;">
+            <div style="margin-bottom: 8px;">
                 <input type="text" id="search-input" class="form-control" placeholder="ابحث باسم المنتج أو الباركود..." onkeyup="filterProducts()">
             </div>
 
-            <!-- قائمة المنتجات -->
+            <!-- قائمة المنتجات المحملة من جوجل شيت -->
             <div id="products-container" class="products-list">
-                <!-- يتم تعبئة المنتجات هنا تلقائياً -->
+                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات من الشيت...</p>
             </div>
 
-            <!-- ملخص عربة التسوق -->
             <div class="cart-summary">
                 <span>🛒 السلة: <span id="cart-count">0</span> أصناف</span>
                 <span>الإجمالي: <span id="cart-total">0.00</span> دينار</span>
             </div>
 
-            <button class="btn-primary" style="margin-top: 10px; padding: 10px;" onclick="checkoutCart()">إتمام الطلب</button>
+            <button class="btn-primary" style="margin-top: 8px; padding: 10px;" onclick="checkoutCart()">إتمام الطلب</button>
             <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
         </div>
 
@@ -333,21 +324,12 @@
     <script>
         let selectedBranchName = "";
         let cart = [];
+        let currentBranchProducts = [];
 
-        // قاعدة بيانات المنتجات والأسعار لكل فرع (يمكنك ربطها مستقبلاً بشيتات جوجل)
-        const branchProducts = {
-            "الفرع الرئيسي - عبدون": [
-                { barcode: "11110", name: "بيرغر سنجل", price: 2.75, category: "الوجبات السريعة" },
-                { barcode: "11111", name: "حليب فريش 1 لتر", price: 1.25, category: "الألبان" },
-                { barcode: "11112", name: "خبز عربي طازج", price: 0.50, category: "المخبوزات" },
-                { barcode: "11113", name: "جبنة مبشورة 500غ", price: 3.25, category: "الألبان والأجبان" }
-            ],
-            "فرع النخيل": [
-                { barcode: "11110", name: "بيرغر سنجل", price: 2.85, category: "الوجبات السريعة" },
-                { barcode: "11111", name: "حليب فريش 1 لتر", price: 1.30, category: "الألبان" },
-                { barcode: "11112", name: "خبز عربي طازج", price: 0.50, category: "المخبوزات" },
-                { barcode: "11114", name: "عصير برتقال طبيعي 1 لتر", price: 1.75, category: "المشروبات" }
-            ]
+        // ربط الروابط الفعلية لملفات جوجل شيت (CSV) لكل فرع
+        const branchCsvUrls = {
+            "الفرع الرئيسي - عبدون": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy2zx6syrcFIY5W5SxqCWCBUMA7dA-7fcbER2hGY9JOIfzd8V65FSd2nDHT7GYp7jQ5fAkk2g-ZmQ0/pub?gid=0&single=true&output=csv",
+            "فرع النخيل": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy2zx6syrcFIY5W5SxqCWCBUMA7dA-7fcbER2hGY9JOIfzd8V65FSd2nDHT7GYp7jQ5fAkk2g-ZmQ0/pub?gid=0&single=true&output=csv"
         };
 
         function goToScreen(screenId) {
@@ -377,7 +359,7 @@
             btn.style.cursor = 'pointer';
         }
 
-        function proceedToStore() {
+        async function proceedToStore() {
             if(!selectedBranchName) return;
             
             localStorage.setItem('jj_selected_branch', selectedBranchName);
@@ -385,7 +367,41 @@
             document.getElementById('user-branch-display').innerText = "الفرع: " + selectedBranchName;
             
             goToScreen('store-screen');
-            renderProducts(branchProducts[selectedBranchName] || []);
+            await fetchBranchProducts(selectedBranchName);
+        }
+
+        async function fetchBranchProducts(branchName) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب الأسعار والمنتجات من جوجل شيت...</p>';
+
+            const csvUrl = branchCsvUrls[branchName];
+
+            try {
+                const response = await fetch(csvUrl);
+                const data = await response.text();
+                currentBranchProducts = parseCSV(data);
+                renderProducts(currentBranchProducts);
+            } catch (error) {
+                container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر الاتصال بملف الشيت، يرجى التحقق من إذن النشر (Publish to Web).</p>';
+            }
+        }
+
+        // تحويل ملف الـ CSV (بناءً على الأعمدة: Bracode, Price, name) إلى مصفوفة بيانات
+        function parseCSV(text) {
+            const lines = text.split('\n');
+            const result = [];
+            for (let i = 1; i < lines.length; i++) {
+                if(!lines[i].trim()) continue;
+                const currentline = lines[i].split(',');
+                if(currentline.length >= 3) {
+                    result.push({
+                        barcode: currentline[0] ? currentline[0].trim() : '',
+                        price: currentline[1] ? parseFloat(currentline[1]) || 0 : 0,
+                        name: currentline[2] ? currentline[2].trim() : ''
+                    });
+                }
+            }
+            return result;
         }
 
         function renderProducts(productsList) {
@@ -393,7 +409,7 @@
             container.innerHTML = '';
 
             if(productsList.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة للبحث.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة.</p>';
                 return;
             }
 
@@ -403,7 +419,7 @@
                 card.innerHTML = `
                     <div>
                         <h4 style="font-size: 13px; margin-bottom: 2px;">${p.name}</h4>
-                        <p style="font-size: 11px; color: var(--text-muted);">باركود: ${p.barcode} | ${p.category}</p>
+                        <p style="font-size: 11px; color: var(--text-muted);">باركود: ${p.barcode}</p>
                     </div>
                     <div style="text-align: left;">
                         <span style="font-weight: bold; color: #d4af37; display: block; font-size: 13px;">${p.price.toFixed(2)} د.أ</span>
@@ -416,9 +432,7 @@
 
         function filterProducts() {
             const query = document.getElementById('search-input').value.toLowerCase();
-            const currentProducts = branchProducts[selectedBranchName] || [];
-            
-            const filtered = currentProducts.filter(p => 
+            const filtered = currentBranchProducts.filter(p => 
                 p.name.toLowerCase().includes(query) || p.barcode.includes(query)
             );
             renderProducts(filtered);
@@ -440,7 +454,7 @@
                 alert('عربة التسوق فارغة!');
                 return;
             }
-            alert(`تم إرسال طلبك بنجاح من ${selectedBranchName}! مجموع السلة: ${cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)} دينار.`);
+            alert(`تم إرسال طلبك بنجاح من ${selectedBranchName}! المجموع: ${cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)} دينار.`);
             cart = [];
             updateCartSummary();
         }
@@ -452,7 +466,7 @@
             goToScreen('welcome-screen');
         }
 
-        window.onload = function() {
+        window.onload = async function() {
             const savedBranch = localStorage.getItem('jj_selected_branch');
             if(savedBranch) {
                 selectedBranchName = savedBranch;
