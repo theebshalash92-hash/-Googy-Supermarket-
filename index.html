@@ -183,11 +183,10 @@
             color: var(--text-muted);
         }
 
-        /* تصميم الأقسام (Categories Grid) */
         .section-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
-            margin: 12px 0 10px 0;
+            margin: 12px 0 8px 0;
             color: var(--text-main);
             text-align: right;
         }
@@ -195,16 +194,18 @@
         .categories-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-            overflow-x: auto;
+            gap: 8px;
+            margin-bottom: 12px;
+            max-height: 160px;
+            overflow-y: auto;
+            padding: 4px;
         }
 
         .category-item {
             background: #f9f9f9;
             border: 1px solid #eee;
-            border-radius: 16px;
-            padding: 10px 6px;
+            border-radius: 14px;
+            padding: 8px 4px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
@@ -217,17 +218,17 @@
         }
 
         .category-icon {
-            width: 48px;
-            height: 48px;
+            width: 42px;
+            height: 42px;
             object-fit: cover;
             border-radius: 50%;
-            margin: 0 auto 6px auto;
+            margin: 0 auto 4px auto;
             background: #eee;
             display: block;
         }
 
         .category-name {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             color: var(--text-main);
             white-space: nowrap;
@@ -241,6 +242,8 @@
             flex-direction: column;
             gap: 10px;
             padding-bottom: 10px;
+            max-height: 280px;
+            overflow-y: auto;
         }
 
         .product-card {
@@ -254,12 +257,12 @@
         }
 
         .product-img {
-            width: 55px;
-            height: 55px;
+            width: 50px;
+            height: 50px;
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 8px;
             background: #eee;
-            margin-left: 12px;
+            margin-left: 10px;
         }
 
         .product-info {
@@ -268,14 +271,14 @@
         }
 
         .product-info h4 {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             margin-bottom: 3px;
             color: var(--text-main);
         }
 
         .product-info p {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
         }
 
@@ -286,21 +289,21 @@
         .product-price {
             font-weight: bold;
             color: #d4af37;
-            font-size: 13px;
+            font-size: 12px;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .cart-summary {
             background: #fffde7;
             border: 1px dashed var(--primary-yellow);
             border-radius: 12px;
-            padding: 10px 12px;
-            margin-top: 10px;
+            padding: 8px 12px;
+            margin-top: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
         }
 
@@ -308,7 +311,7 @@
             text-align: center;
             font-size: 11px;
             color: var(--text-muted);
-            padding: 10px 0 0 0;
+            padding: 8px 0 0 0;
             margin-top: auto;
         }
     </style>
@@ -382,28 +385,28 @@
 
         <!-- 4. شاشة المتجر الرئيسية -->
         <div id="store-screen" class="screen">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px;">
                 <div>
-                    <h3 style="font-size: 16px;" id="current-branch-title">JJ's Supermarket</h3>
-                    <p style="font-size: 11px; color: var(--text-muted);" id="user-branch-display">الفرع المختار</p>
+                    <h3 style="font-size: 15px;" id="current-branch-title">JJ's Supermarket</h3>
+                    <p style="font-size: 10px; color: var(--text-muted);" id="user-branch-display">الفرع المختار</p>
                 </div>
-                <button onclick="logout()" style="background: none; border: none; color: #ff2525; font-weight: bold; cursor: pointer; font-size: 12px;">خروج</button>
+                <button onclick="logout()" style="background: none; border: none; color: #ff2525; font-weight: bold; cursor: pointer; font-size: 11px;">خروج</button>
             </div>
 
-            <div style="margin-bottom: 10px;">
+            <div style="margin-bottom: 8px;">
                 <input type="text" id="search-input" class="form-control" placeholder="ابحث باسم المنتج أو الباركود..." onkeyup="filterProducts()">
             </div>
 
-            <!-- شبكة الأقسام (Categories Grid) -->
+            <!-- شبكة الفئات مطابقة للتصميم -->
             <div class="section-title">تسوق حسب الفئة</div>
             <div id="categories-container" class="categories-grid">
-                <!-- يتم تعبئة الأقسام هنا ديناميكياً -->
+                <!-- يتم تعبئة الفئات هنا -->
             </div>
 
-            <div class="section-title" id="products-section-title">جميع الأصناف المميزة</div>
+            <div class="section-title" id="products-section-title">جميع الأصناف</div>
             <!-- قائمة المنتجات -->
             <div id="products-container" class="products-list">
-                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب كافة الأصناف...</p>
+                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب كافة الأصناف من الشيت...</p>
             </div>
 
             <div class="cart-summary">
@@ -411,7 +414,7 @@
                 <span>الإجمالي: <span id="cart-total">0.00</span> دينار</span>
             </div>
 
-            <button class="btn-primary" style="margin-top: 8px; padding: 10px;" onclick="checkoutCart()">إتمام الطلب</button>
+            <button class="btn-primary" style="margin-top: 6px; padding: 10px;" onclick="checkoutCart()">إتمام الطلب</button>
             <div class="app-footer">© ٢٠٢٦ JJ`S SUPERMARKET . جميع الحقوق محفوظة.</div>
         </div>
 
@@ -423,8 +426,8 @@
         let allProducts = [];
         let currentSelectedGroup = "ALL";
 
-        // رابط Google Apps Script الخاص بك
-        const sheetApiUrl = "https://script.google.com/macros/s/AKfycbyEqZCgPr9o8p62x8pQGl9XUWJ2iCqtTVuj0dMcjpK3lQq9I_i9tIdz_Qr4PusO6gl_tg/exec";
+        // رابط Web App المحدث الخاص بـ Google Apps Script
+        const sheetApiUrl = "https://script.google.com/macros/s/AKfycbykPWNaYfwteuWlPeRKLK2JQEdYUeMrYp3I7OrFXAQwuTF5SFcl_Rc6ThG3dZLVIchG9Q/exec";
 
         function goToScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -466,38 +469,25 @@
 
         async function fetchAllProducts() {
             const container = document.getElementById('products-container');
-            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب جميع الأصناف ومطابقة صور الباركود من الإنترنت...</p>';
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب كافة الأصناف والصور بالباركود...</p>';
 
             try {
                 const response = await fetch(sheetApiUrl);
                 const data = await response.json();
                 
-                allProducts = data.map(item => {
-                    let barcode = item.barcode ? item.barcode.toString().trim() : '';
-                    let group = item.group ? item.group.toString().trim() : 'المواد العامة';
-                    
-                    // جلب صورة المنتج من الإنترنت بناءً على الباركود الحقيقي (عبر Open Food Facts أو Picsum بالباركود)
-                    let imageUrl = `https://images.openfoodfacts.org/images/products/${barcode.slice(0,3)}/${barcode.slice(3,6)}/${barcode.slice(6,9)}/${barcode}/front_en.jpg`;
-                    
-                    // إذا لم توجد صورة مباشرة بالرابط، نستخدم رابط باركود ديناميكي عالي الدقة يضمن ظهور صورة حقيقية
-                    if(!barcode || barcode.length < 5) {
-                        imageUrl = `https://picsum.photos/seed/jjstore/100/100`;
-                    }
-
-                    return {
-                        barcode: barcode,
-                        price: parseFloat(item.price) || 0,
-                        name: item.name ? item.name.toString().trim() : 'صنف بدون اسم',
-                        group: group,
-                        image: imageUrl
-                    };
-                });
+                allProducts = data.map(item => ({
+                    barcode: item.barcode ? item.barcode.toString().trim() : '',
+                    price: parseFloat(item.price) || 0,
+                    name: item.name ? item.name.toString().trim() : 'صنف بدون اسم',
+                    group: item.group ? item.group.toString().trim() : 'المواد العامة',
+                    image: item.image ? item.image.trim() : 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'
+                }));
 
                 renderCategories(allProducts);
                 renderProducts(allProducts);
             } catch (error) {
                 console.error("خطأ في جلب البيانات:", error);
-                container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر جلب الأصناف، يرجى التحقق من الرابط.</p>';
+                container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر جلب الأصناف، تأكد من اتصال الإنترنت.</p>';
             }
         }
 
@@ -540,11 +530,11 @@
             
             currentSelectedGroup = groupName;
             if(groupName === 'ALL') {
-                document.getElementById('products-section-title').innerText = "جميع الأصناف المميزة";
+                document.getElementById('products-section-title').innerText = "جميع الأصناف (" + allProducts.length + ")";
                 renderProducts(allProducts);
             } else {
-                document.getElementById('products-section-title').innerText = "قسم: " + groupName;
                 const filtered = allProducts.filter(p => p.group === groupName);
+                document.getElementById('products-section-title').innerText = groupName + " (" + filtered.length + ")";
                 renderProducts(filtered);
             }
         }
@@ -558,21 +548,18 @@
                 return;
             }
 
-            // عرض أول 150 صنف لتسريع أداء التصفح في المتصفح
-            const limitedList = productsList.slice(0, 150);
-
-            limitedList.forEach(p => {
+            productsList.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
-                    <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://picsum.photos/seed/${p.barcode}/100/100'">
+                    <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'">
                     <div class="product-info">
                         <h4>${p.name}</h4>
-                        <p>باركود: ${p.barcode} | ${p.group}</p>
+                        <p>باركود: ${p.barcode}</p>
                     </div>
                     <div class="product-action">
                         <span class="product-price">${p.price.toFixed(2)} د.أ</span>
-                        <button onclick="addToCart('${p.barcode}', '${p.name.replace(/'/g, "")}', ${p.price})" style="padding: 6px 12px; background: #FFD700; border: none; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;">إضافة</button>
+                        <button onclick="addToCart('${p.barcode}', '${p.name.replace(/'/g, "")}', ${p.price})" style="padding: 5px 10px; background: #FFD700; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">إضافة</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -589,7 +576,7 @@
             const filtered = allProducts.filter(p => 
                 p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query) || p.group.toLowerCase().includes(query)
             );
-            document.getElementById('products-section-title').innerText = "نتائج البحث عن: " + query;
+            document.getElementById('products-section-title').innerText = "نتائج البحث (" + filtered.length + ")";
             renderProducts(filtered);
         }
 
