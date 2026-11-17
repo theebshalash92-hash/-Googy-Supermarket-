@@ -406,7 +406,7 @@
             <div class="section-title" id="products-section-title">جميع الأصناف</div>
             <!-- قائمة المنتجات -->
             <div id="products-container" class="products-list">
-                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب كافة الأصناف من الشيت...</p>
+                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب كافة الأصناف...</p>
             </div>
 
             <div class="cart-summary">
@@ -426,7 +426,7 @@
         let allProducts = [];
         let currentSelectedGroup = "ALL";
 
-        // رابط Web App المحدث الخاص بـ Google Apps Script
+        // رابط Web App الخاص بـ Google Apps Script
         const sheetApiUrl = "https://script.google.com/macros/s/AKfycbykPWNaYfwteuWlPeRKLK2JQEdYUeMrYp3I7OrFXAQwuTF5SFcl_Rc6ThG3dZLVIchG9Q/exec";
 
         function goToScreen(screenId) {
@@ -548,7 +548,10 @@
                 return;
             }
 
-            productsList.forEach(p => {
+            // عرض أول 100 صنف فقط لمنع تعليق المتصفح، مع إمكانية البحث الفوري لأي صنف
+            const limitedList = productsList.slice(0, 100);
+
+            limitedList.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
