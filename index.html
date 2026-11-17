@@ -374,6 +374,17 @@
         let cart = [];
         let currentBranchProducts = [];
 
+        // قاعدة بيانات الأصناف المستخرجة مباشرة من ملف المواد الخاص بك
+        const allProductsData = [
+            {"barcode": "6254000119147", "price": 6.95, "name": "Golden Demi Glace sauce powder 1 kg", "group": "Apitizers & spices", "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60"},
+            {"barcode": "42092698", "price": 3.25, "name": "Langnese Pure Bee Honey 125g", "group": "Honey & Jam", "image": "https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=100&auto=format&fit=crop&q=60"},
+            {"barcode": "34000070763", "price": 5.60, "name": "Hersheys CookiesCream Candy Size Chocolates 904g", "group": "Cookies", "image": "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=100&auto=format&fit=crop&q=60"},
+            {"barcode": "34000519224", "price": 0.25, "name": "Twizzlers Twists 180 163g", "group": "Candies", "image": "https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?w=100&auto=format&fit=crop&q=60"},
+            {"barcode": "41116005824", "price": 2.60, "name": "Juicy DropTaffy Different Flavors Candy 1Piece 67g", "group": "Candies", "image": "https://images.unsplash.com/photo-1581798459219-3fbc9f9f3ff1?w=100&auto=format&fit=crop&q=60"},
+            {"barcode": "6251000123456", "price": 1.25, "name": "حليب فريش طازج 1 لتر", "group": "Fresh milk", "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100&auto=format&fit=crop&q=60"},
+            {"barcode": "6251000654321", "price": 0.50, "name": "خبز عربي طازج", "group": "Bread", "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&auto=format&fit=crop&q=60"}
+        ];
+
         function goToScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
@@ -413,14 +424,7 @@
         }
 
         function loadStoreProducts() {
-            // قاعدة بيانات الأصناف مقسمة ومجهزة مع الصور والأسعار والبار كود
-            currentBranchProducts = [
-                { barcode: "11110", name: "بيرغر سنجل طازج", price: 2.75, group: "الوجبات السريعة واللحوم", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100&auto=format&fit=crop&q=60" },
-                { barcode: "11111", name: "حليب فريش طازج 1 لتر", price: 1.25, group: "الألبان والأجبان", image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100&auto=format&fit=crop&q=60" },
-                { barcode: "11112", name: "خبز عربي محلي طازج", price: 0.50, group: "المخبوزات والحلويات", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&auto=format&fit=crop&q=60" },
-                { barcode: "11113", name: "عصير برتقال طبيعي 1 لتر", price: 1.75, group: "المشروبات والعصائر", image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=100&auto=format&fit=crop&q=60" },
-                { barcode: "11114", name: "جبنة شيدر طبيعية 500غ", price: 3.25, group: "الألبان والأجبان", image: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=100&auto=format&fit=crop&q=60" }
-            ];
+            currentBranchProducts = allProductsData;
             renderGroupedProducts(currentBranchProducts);
         }
 
@@ -435,10 +439,11 @@
 
             const groups = {};
             productsList.forEach(p => {
-                if(!groups[p.group]) {
-                    groups[p.group] = [];
+                const grp = p.group || "المواد العامة";
+                if(!groups[grp]) {
+                    groups[grp] = [];
                 }
-                groups[p.group].push(p);
+                groups[grp].push(p);
             });
 
             for (const [groupName, items] of Object.entries(groups)) {
@@ -451,14 +456,14 @@
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.innerHTML = `
-                        <img src="${p.image}" class="product-img" alt="${p.name}">
+                        <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'">
                         <div class="product-info">
                             <h4>${p.name}</h4>
                             <p>باركود: ${p.barcode}</p>
                         </div>
                         <div class="product-action">
                             <span class="product-price">${p.price.toFixed(2)} د.أ</span>
-                            <button onclick="addToCart('${p.barcode}', '${p.name}', ${p.price})" style="padding: 4px 10px; background: #FFD700; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">إضافة</button>
+                            <button onclick="addToCart('${p.barcode}', '${p.name.replace(/'/g, "")}', ${p.price})" style="padding: 4px 10px; background: #FFD700; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">إضافة</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -469,7 +474,7 @@
         function filterProducts() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const filtered = currentBranchProducts.filter(p => 
-                p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query)
+                p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query) || p.group.toLowerCase().includes(query)
             );
             renderGroupedProducts(filtered);
         }
