@@ -184,10 +184,10 @@
         .products-list {
             flex: 1;
             overflow-y: auto;
-            max-height: 360px;
+            max-height: 350px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             margin-top: 10px;
             padding-bottom: 10px;
         }
@@ -196,10 +196,13 @@
             font-size: 14px;
             font-weight: bold;
             color: #d4af37;
-            margin-top: 10px;
-            margin-bottom: 5px;
+            margin-top: 12px;
+            margin-bottom: 6px;
             border-bottom: 1px dashed #ddd;
-            padding-bottom: 3px;
+            padding-bottom: 4px;
+            background: #fffbe7;
+            padding: 6px 10px;
+            border-radius: 6px;
         }
 
         .product-card {
@@ -284,7 +287,7 @@
             <div class="welcome-content">
                 <h2 style="font-size: 22px; margin-bottom: 5px;">أهلاً وسهلاً بكم</h2>
                 <h1 style="color: #d4af37; margin-bottom: 15px;">سوبر ماركت جي جي</h1>
-                <p>مساعد التسوق الذكي الخاص بك!</p>
+                <p>مساعد التسوق الذكي لجميع الأصناف والأسعار!</p>
                 <button class="btn-primary" onclick="goToScreen('login-screen')">ابدأ التسوق</button>
             </div>
             <div class="app-footer">© ٢٠٢٦ JJ`S SUPERMARKET . جميع الحقوق محفوظة.</div>
@@ -315,7 +318,7 @@
         <!-- 3. شاشة اختيار الفرع -->
         <div id="branch-screen" class="screen">
             <h2 style="text-align: center; margin-bottom: 5px;">اختر الفرع الأقرب لك</h2>
-            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">حدد الفرع المناسب لعرض المنتجات مقسمة حسب الأقسام</p>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">حدد الفرع المناسب لعرض المنتجات والأقسام</p>
             
             <div class="branches-grid">
                 <div class="branch-card" onclick="selectBranch('الفرع الرئيسي - عبدون', this)">
@@ -355,7 +358,7 @@
 
             <!-- قائمة المنتجات -->
             <div id="products-container" class="products-list">
-                <!-- يتم تعبئة المنتجات هنا -->
+                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب كافة الأصناف والأقسام...</p>
             </div>
 
             <div class="cart-summary">
@@ -372,18 +375,10 @@
     <script>
         let selectedBranchName = "";
         let cart = [];
-        let currentBranchProducts = [];
+        let allProducts = [];
 
-        // قاعدة بيانات الأصناف المستخرجة مباشرة من ملف المواد الخاص بك
-        const allProductsData = [
-            {"barcode": "6254000119147", "price": 6.95, "name": "Golden Demi Glace sauce powder 1 kg", "group": "Apitizers & spices", "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60"},
-            {"barcode": "42092698", "price": 3.25, "name": "Langnese Pure Bee Honey 125g", "group": "Honey & Jam", "image": "https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=100&auto=format&fit=crop&q=60"},
-            {"barcode": "34000070763", "price": 5.60, "name": "Hersheys CookiesCream Candy Size Chocolates 904g", "group": "Cookies", "image": "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=100&auto=format&fit=crop&q=60"},
-            {"barcode": "34000519224", "price": 0.25, "name": "Twizzlers Twists 180 163g", "group": "Candies", "image": "https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?w=100&auto=format&fit=crop&q=60"},
-            {"barcode": "41116005824", "price": 2.60, "name": "Juicy DropTaffy Different Flavors Candy 1Piece 67g", "group": "Candies", "image": "https://images.unsplash.com/photo-1581798459219-3fbc9f9f3ff1?w=100&auto=format&fit=crop&q=60"},
-            {"barcode": "6251000123456", "price": 1.25, "name": "حليب فريش طازج 1 لتر", "group": "Fresh milk", "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100&auto=format&fit=crop&q=60"},
-            {"barcode": "6251000654321", "price": 0.50, "name": "خبز عربي طازج", "group": "Bread", "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&auto=format&fit=crop&q=60"}
-        ];
+        // ضع هنا رابط Web App الجديد الخاص بـ Google Apps Script
+        const sheetApiUrl = "https://script.google.com/macros/s/AKfycbyEqZCgPr9o8p62x8pQGl9XUWJ2iCqtTVuj0dMcjpK3lQq9I_i9tIdz_Qr4PusO6gl_tg/exec";
 
         function goToScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -412,7 +407,7 @@
             btn.style.cursor = 'pointer';
         }
 
-        function proceedToStore() {
+        async function proceedToStore() {
             if(!selectedBranchName) return;
             
             localStorage.setItem('jj_selected_branch', selectedBranchName);
@@ -420,12 +415,31 @@
             document.getElementById('user-branch-display').innerText = "الفرع: " + selectedBranchName;
             
             goToScreen('store-screen');
-            loadStoreProducts();
+            await fetchAllProducts();
         }
 
-        function loadStoreProducts() {
-            currentBranchProducts = allProductsData;
-            renderGroupedProducts(currentBranchProducts);
+        async function fetchAllProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب جميع الأصناف من الإكسل...</p>';
+
+            try {
+                const response = await fetch(sheetApiUrl);
+                const data = await response.json();
+                
+                allProducts = data.map(item => ({
+                    barcode: item.barcode ? item.barcode.toString() : '',
+                    price: parseFloat(item.price) || 0,
+                    name: item.name ? item.name.toString() : '',
+                    group: item.group ? item.group.toString() : 'المواد العامة',
+                    // جلب الصورة بناءً على الباركود (استخدام خدمة صور باركود أو الصورة المحددة)
+                    image: item.image && item.image.startsWith('http') ? item.image : `https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60`
+                }));
+
+                renderGroupedProducts(allProducts);
+            } catch (error) {
+                console.error("خطأ في جلب البيانات:", error);
+                container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر جلب الأصناف، يرجى التحقق من الرابط.</p>';
+            }
         }
 
         function renderGroupedProducts(productsList) {
@@ -437,6 +451,7 @@
                 return;
             }
 
+            // تجميع الأصناف حسب المجموعات الرئيسية (Group)
             const groups = {};
             productsList.forEach(p => {
                 const grp = p.group || "المواد العامة";
@@ -446,13 +461,20 @@
                 groups[grp].push(p);
             });
 
+            // عرض أول 200 صنف منعاً لثقل المتصفح، مع إمكانية البحث الفوري عن أي صنف
+            let displayedCount = 0;
             for (const [groupName, items] of Object.entries(groups)) {
+                if (displayedCount > 300) break;
+
                 const groupHeader = document.createElement('div');
                 groupHeader.className = 'category-title';
-                groupHeader.innerText = "📁 " + groupName;
+                groupHeader.innerText = "📁 " + groupName + " (" + items.length + ")";
                 container.appendChild(groupHeader);
 
                 items.forEach(p => {
+                    if (displayedCount > 300) return;
+                    displayedCount++;
+
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.innerHTML = `
@@ -472,8 +494,13 @@
         }
 
         function filterProducts() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = currentBranchProducts.filter(p => 
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            if(!query) {
+                renderGroupedProducts(allProducts);
+                return;
+            }
+
+            const filtered = allProducts.filter(p => 
                 p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query) || p.group.toLowerCase().includes(query)
             );
             renderGroupedProducts(filtered);
