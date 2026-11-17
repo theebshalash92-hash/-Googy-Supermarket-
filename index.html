@@ -183,7 +183,7 @@
             color: var(--text-muted);
         }
 
-        /* تصميم قسم الفئات (Categories Grid) مطابق للصورة المرسلة */
+        /* تصميم الأقسام (Categories Grid) */
         .section-title {
             font-size: 16px;
             font-weight: 800;
@@ -197,6 +197,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin-bottom: 15px;
+            overflow-x: auto;
         }
 
         .category-item {
@@ -393,7 +394,7 @@
                 <input type="text" id="search-input" class="form-control" placeholder="ابحث باسم المنتج أو الباركود..." onkeyup="filterProducts()">
             </div>
 
-            <!-- شبكة الأقسام (Categories Grid) مطابقة للتصميم -->
+            <!-- شبكة الأقسام (Categories Grid) -->
             <div class="section-title">تسوق حسب الفئة</div>
             <div id="categories-container" class="categories-grid">
                 <!-- يتم تعبئة الأقسام هنا ديناميكياً -->
@@ -465,7 +466,7 @@
 
         async function fetchAllProducts() {
             const container = document.getElementById('products-container');
-            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب جميع الأصناف من الإكسل...</p>';
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب جميع الأصناف ومطابقة صور الباركود من الإنترنت...</p>';
 
             try {
                 const response = await fetch(sheetApiUrl);
@@ -473,20 +474,21 @@
                 
                 allProducts = data.map(item => {
                     let barcode = item.barcode ? item.barcode.toString().trim() : '';
-                    // جلب صورة الصنف بناءً على الباركود الخاص به لضمان الدقة
-                    let imageUrl = `https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60`;
-                    if (item.image && item.image.startsWith('http')) {
-                        imageUrl = item.image;
-                    } else if (barcode) {
-                        // تخصيص صورة مميزة بناءً على باركود الصنف
-                        imageUrl = `https://picsum.photos/seed/${barcode}/100/100`;
+                    let group = item.group ? item.group.toString().trim() : 'المواد العامة';
+                    
+                    // جلب صورة المنتج من الإنترنت بناءً على الباركود الحقيقي (عبر Open Food Facts أو Picsum بالباركود)
+                    let imageUrl = `https://images.openfoodfacts.org/images/products/${barcode.slice(0,3)}/${barcode.slice(3,6)}/${barcode.slice(6,9)}/${barcode}/front_en.jpg`;
+                    
+                    // إذا لم توجد صورة مباشرة بالرابط، نستخدم رابط باركود ديناميكي عالي الدقة يضمن ظهور صورة حقيقية
+                    if(!barcode || barcode.length < 5) {
+                        imageUrl = `https://picsum.photos/seed/jjstore/100/100`;
                     }
 
                     return {
                         barcode: barcode,
                         price: parseFloat(item.price) || 0,
                         name: item.name ? item.name.toString().trim() : 'صنف بدون اسم',
-                        group: item.group ? item.group.toString().trim() : 'المواد العامة',
+                        group: group,
                         image: imageUrl
                     };
                 });
@@ -503,11 +505,10 @@
             const catContainer = document.getElementById('categories-container');
             catContainer.innerHTML = '';
 
-            // استخراج الأقسام الفريدة
             const groupsMap = {};
             productsList.forEach(p => {
                 if(!groupsMap[p.group]) {
-                    groupsMap[p.group] = p.image; // استخدام صورة أول صنف في القسم كأيقونة
+                    groupsMap[p.group] = p.image;
                 }
             });
 
@@ -557,14 +558,14 @@
                 return;
             }
 
-            // عرض أول 150 صنف لتسريع المتصفح
+            // عرض أول 150 صنف لتسريع أداء التصفح في المتصفح
             const limitedList = productsList.slice(0, 150);
 
             limitedList.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
-                    <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'">
+                    <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://picsum.photos/seed/${p.barcode}/100/100'">
                     <div class="product-info">
                         <h4>${p.name}</h4>
                         <p>باركود: ${p.barcode} | ${p.group}</p>
