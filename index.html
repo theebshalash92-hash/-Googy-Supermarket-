@@ -40,7 +40,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             overflow: hidden;
             position: relative;
-            min-height: 700px;
+            min-height: 750px;
             display: flex;
             flex-direction: column;
         }
@@ -51,6 +51,8 @@
             padding: 20px;
             flex: 1;
             animation: fadeIn var(--transition-speed) ease-in-out;
+            overflow-y: auto;
+            max-height: 750px;
         }
 
         .screen.active {
@@ -181,28 +183,63 @@
             color: var(--text-muted);
         }
 
+        /* تصميم قسم الفئات (Categories Grid) مطابق للصورة المرسلة */
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin: 12px 0 10px 0;
+            color: var(--text-main);
+            text-align: right;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .category-item {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 16px;
+            padding: 10px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-item:hover, .category-item.active {
+            background: #fffde7;
+            border-color: var(--primary-yellow);
+            transform: translateY(-2px);
+        }
+
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin: 0 auto 6px auto;
+            background: #eee;
+            display: block;
+        }
+
+        .category-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .products-list {
             flex: 1;
-            overflow-y: auto;
-            max-height: 350px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 10px;
             padding-bottom: 10px;
-        }
-
-        .category-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #d4af37;
-            margin-top: 12px;
-            margin-bottom: 6px;
-            border-bottom: 1px dashed #ddd;
-            padding-bottom: 4px;
-            background: #fffbe7;
-            padding: 6px 10px;
-            border-radius: 6px;
         }
 
         .product-card {
@@ -216,10 +253,10 @@
         }
 
         .product-img {
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 10px;
             background: #eee;
             margin-left: 12px;
         }
@@ -258,7 +295,7 @@
             border: 1px dashed var(--primary-yellow);
             border-radius: 12px;
             padding: 10px 12px;
-            margin-top: 8px;
+            margin-top: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -352,13 +389,20 @@
                 <button onclick="logout()" style="background: none; border: none; color: #ff2525; font-weight: bold; cursor: pointer; font-size: 12px;">خروج</button>
             </div>
 
-            <div style="margin-bottom: 8px;">
+            <div style="margin-bottom: 10px;">
                 <input type="text" id="search-input" class="form-control" placeholder="ابحث باسم المنتج أو الباركود..." onkeyup="filterProducts()">
             </div>
 
+            <!-- شبكة الأقسام (Categories Grid) مطابقة للتصميم -->
+            <div class="section-title">تسوق حسب الفئة</div>
+            <div id="categories-container" class="categories-grid">
+                <!-- يتم تعبئة الأقسام هنا ديناميكياً -->
+            </div>
+
+            <div class="section-title" id="products-section-title">جميع الأصناف المميزة</div>
             <!-- قائمة المنتجات -->
             <div id="products-container" class="products-list">
-                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب كافة الأصناف والأقسام...</p>
+                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب كافة الأصناف...</p>
             </div>
 
             <div class="cart-summary">
@@ -367,7 +411,7 @@
             </div>
 
             <button class="btn-primary" style="margin-top: 8px; padding: 10px;" onclick="checkoutCart()">إتمام الطلب</button>
-            <div class="app-footer">© ٢٠٢٦ سوبر ماركت جي جي. جميع الحقوق محفوظة.</div>
+            <div class="app-footer">© ٢٠٢٦ JJ`S SUPERMARKET . جميع الحقوق محفوظة.</div>
         </div>
 
     </div>
@@ -376,8 +420,9 @@
         let selectedBranchName = "";
         let cart = [];
         let allProducts = [];
+        let currentSelectedGroup = "ALL";
 
-        // ضع هنا رابط Web App الجديد الخاص بـ Google Apps Script
+        // رابط Google Apps Script الخاص بك
         const sheetApiUrl = "https://script.google.com/macros/s/AKfycbyEqZCgPr9o8p62x8pQGl9XUWJ2iCqtTVuj0dMcjpK3lQq9I_i9tIdz_Qr4PusO6gl_tg/exec";
 
         function goToScreen(screenId) {
@@ -426,84 +471,125 @@
                 const response = await fetch(sheetApiUrl);
                 const data = await response.json();
                 
-                allProducts = data.map(item => ({
-                    barcode: item.barcode ? item.barcode.toString() : '',
-                    price: parseFloat(item.price) || 0,
-                    name: item.name ? item.name.toString() : '',
-                    group: item.group ? item.group.toString() : 'المواد العامة',
-                    // جلب الصورة بناءً على الباركود (استخدام خدمة صور باركود أو الصورة المحددة)
-                    image: item.image && item.image.startsWith('http') ? item.image : `https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60`
-                }));
+                allProducts = data.map(item => {
+                    let barcode = item.barcode ? item.barcode.toString().trim() : '';
+                    // جلب صورة الصنف بناءً على الباركود الخاص به لضمان الدقة
+                    let imageUrl = `https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60`;
+                    if (item.image && item.image.startsWith('http')) {
+                        imageUrl = item.image;
+                    } else if (barcode) {
+                        // تخصيص صورة مميزة بناءً على باركود الصنف
+                        imageUrl = `https://picsum.photos/seed/${barcode}/100/100`;
+                    }
 
-                renderGroupedProducts(allProducts);
+                    return {
+                        barcode: barcode,
+                        price: parseFloat(item.price) || 0,
+                        name: item.name ? item.name.toString().trim() : 'صنف بدون اسم',
+                        group: item.group ? item.group.toString().trim() : 'المواد العامة',
+                        image: imageUrl
+                    };
+                });
+
+                renderCategories(allProducts);
+                renderProducts(allProducts);
             } catch (error) {
                 console.error("خطأ في جلب البيانات:", error);
                 container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر جلب الأصناف، يرجى التحقق من الرابط.</p>';
             }
         }
 
-        function renderGroupedProducts(productsList) {
+        function renderCategories(productsList) {
+            const catContainer = document.getElementById('categories-container');
+            catContainer.innerHTML = '';
+
+            // استخراج الأقسام الفريدة
+            const groupsMap = {};
+            productsList.forEach(p => {
+                if(!groupsMap[p.group]) {
+                    groupsMap[p.group] = p.image; // استخدام صورة أول صنف في القسم كأيقونة
+                }
+            });
+
+            // زر عرض الكل
+            const allBtn = document.createElement('div');
+            allBtn.className = 'category-item active';
+            allBtn.onclick = () => filterByGroup('ALL', allBtn);
+            allBtn.innerHTML = `
+                <img src="https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=100&auto=format&fit=crop&q=60" class="category-icon" alt="الكل">
+                <div class="category-name">عرض الكل</div>
+            `;
+            catContainer.appendChild(allBtn);
+
+            for (const [groupName, groupImg] of Object.entries(groupsMap)) {
+                const item = document.createElement('div');
+                item.className = 'category-item';
+                item.onclick = () => filterByGroup(groupName, item);
+                item.innerHTML = `
+                    <img src="${groupImg}" class="category-icon" alt="${groupName}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'">
+                    <div class="category-name">${groupName}</div>
+                `;
+                catContainer.appendChild(item);
+            }
+        }
+
+        function filterByGroup(groupName, element) {
+            document.querySelectorAll('.category-item').forEach(c => c.classList.remove('active'));
+            if(element) element.classList.add('active');
+            
+            currentSelectedGroup = groupName;
+            if(groupName === 'ALL') {
+                document.getElementById('products-section-title').innerText = "جميع الأصناف المميزة";
+                renderProducts(allProducts);
+            } else {
+                document.getElementById('products-section-title').innerText = "قسم: " + groupName;
+                const filtered = allProducts.filter(p => p.group === groupName);
+                renderProducts(filtered);
+            }
+        }
+
+        function renderProducts(productsList) {
             const container = document.getElementById('products-container');
             container.innerHTML = '';
 
             if(productsList.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-top: 20px;">لا توجد منتجات مطابقة.</p>';
                 return;
             }
 
-            // تجميع الأصناف حسب المجموعات الرئيسية (Group)
-            const groups = {};
-            productsList.forEach(p => {
-                const grp = p.group || "المواد العامة";
-                if(!groups[grp]) {
-                    groups[grp] = [];
-                }
-                groups[grp].push(p);
+            // عرض أول 150 صنف لتسريع المتصفح
+            const limitedList = productsList.slice(0, 150);
+
+            limitedList.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'">
+                    <div class="product-info">
+                        <h4>${p.name}</h4>
+                        <p>باركود: ${p.barcode} | ${p.group}</p>
+                    </div>
+                    <div class="product-action">
+                        <span class="product-price">${p.price.toFixed(2)} د.أ</span>
+                        <button onclick="addToCart('${p.barcode}', '${p.name.replace(/'/g, "")}', ${p.price})" style="padding: 6px 12px; background: #FFD700; border: none; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;">إضافة</button>
+                    </div>
+                `;
+                container.appendChild(card);
             });
-
-            // عرض أول 200 صنف منعاً لثقل المتصفح، مع إمكانية البحث الفوري عن أي صنف
-            let displayedCount = 0;
-            for (const [groupName, items] of Object.entries(groups)) {
-                if (displayedCount > 300) break;
-
-                const groupHeader = document.createElement('div');
-                groupHeader.className = 'category-title';
-                groupHeader.innerText = "📁 " + groupName + " (" + items.length + ")";
-                container.appendChild(groupHeader);
-
-                items.forEach(p => {
-                    if (displayedCount > 300) return;
-                    displayedCount++;
-
-                    const card = document.createElement('div');
-                    card.className = 'product-card';
-                    card.innerHTML = `
-                        <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'">
-                        <div class="product-info">
-                            <h4>${p.name}</h4>
-                            <p>باركود: ${p.barcode}</p>
-                        </div>
-                        <div class="product-action">
-                            <span class="product-price">${p.price.toFixed(2)} د.أ</span>
-                            <button onclick="addToCart('${p.barcode}', '${p.name.replace(/'/g, "")}', ${p.price})" style="padding: 4px 10px; background: #FFD700; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">إضافة</button>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
-            }
         }
 
         function filterProducts() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             if(!query) {
-                renderGroupedProducts(allProducts);
+                filterByGroup(currentSelectedGroup, null);
                 return;
             }
 
             const filtered = allProducts.filter(p => 
                 p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query) || p.group.toLowerCase().includes(query)
             );
-            renderGroupedProducts(filtered);
+            document.getElementById('products-section-title').innerText = "نتائج البحث عن: " + query;
+            renderProducts(filtered);
         }
 
         function addToCart(barcode, name, price) {
