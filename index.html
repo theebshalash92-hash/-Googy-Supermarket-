@@ -284,7 +284,7 @@
             <div class="welcome-content">
                 <h2 style="font-size: 22px; margin-bottom: 5px;">أهلاً وسهلاً بكم</h2>
                 <h1 style="color: #d4af37; margin-bottom: 15px;">سوبر ماركت جي جي</h1>
-                <p>مساعد التسوق الذكي المرتبط بقاعدة بيانات جوجل شيت!</p>
+                <p>مساعد التسوق الذكي الخاص بك!</p>
                 <button class="btn-primary" onclick="goToScreen('login-screen')">ابدأ التسوق</button>
             </div>
             <div class="app-footer">© ٢٠٢٦ JJ`S SUPERMARKET . جميع الحقوق محفوظة.</div>
@@ -355,7 +355,7 @@
 
             <!-- قائمة المنتجات -->
             <div id="products-container" class="products-list">
-                <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري تحميل المنتجات والأقسام من جوجل شيت...</p>
+                <!-- يتم تعبئة المنتجات هنا -->
             </div>
 
             <div class="cart-summary">
@@ -373,9 +373,6 @@
         let selectedBranchName = "";
         let cart = [];
         let currentBranchProducts = [];
-
-        // رابط Google Apps Script Web App المحدث
-        const sheetApiUrl = "https://script.google.com/macros/s/AKfycbyEqZCgPr9o8p62x8pQGl9XUWJ2iCqtTVuj0dMcjpK3lQq9I_i9tIdz_Qr4PusO6gl_tg/exec";
 
         function goToScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -404,7 +401,7 @@
             btn.style.cursor = 'pointer';
         }
 
-        async function proceedToStore() {
+        function proceedToStore() {
             if(!selectedBranchName) return;
             
             localStorage.setItem('jj_selected_branch', selectedBranchName);
@@ -412,30 +409,19 @@
             document.getElementById('user-branch-display').innerText = "الفرع: " + selectedBranchName;
             
             goToScreen('store-screen');
-            await fetchBranchProducts();
+            loadStoreProducts();
         }
 
-        async function fetchBranchProducts() {
-            const container = document.getElementById('products-container');
-            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">جاري جلب المنتجات من الشيت...</p>';
-
-            try {
-                const response = await fetch(sheetApiUrl);
-                const data = await response.json();
-                
-                currentBranchProducts = data.map(item => ({
-                    barcode: item.barcode ? item.barcode.toString() : '',
-                    price: parseFloat(item.price) || 0,
-                    name: item.name ? item.name.toString() : '',
-                    group: item.group ? item.group.toString() : 'المواد العامة',
-                    image: item.image ? item.image.toString() : 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'
-                }));
-
-                renderGroupedProducts(currentBranchProducts);
-            } catch (error) {
-                console.error("خطأ في الاتصال:", error);
-                container.innerHTML = '<p style="text-align: center; color: #ff2525; margin-top: 20px;">تعذر جلب المنتجات من الشيت، تأكد من اتصال الإنترنت أو إذن النشر.</p>';
-            }
+        function loadStoreProducts() {
+            // قاعدة بيانات الأصناف مقسمة ومجهزة مع الصور والأسعار والبار كود
+            currentBranchProducts = [
+                { barcode: "11110", name: "بيرغر سنجل طازج", price: 2.75, group: "الوجبات السريعة واللحوم", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100&auto=format&fit=crop&q=60" },
+                { barcode: "11111", name: "حليب فريش طازج 1 لتر", price: 1.25, group: "الألبان والأجبان", image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100&auto=format&fit=crop&q=60" },
+                { barcode: "11112", name: "خبز عربي محلي طازج", price: 0.50, group: "المخبوزات والحلويات", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&auto=format&fit=crop&q=60" },
+                { barcode: "11113", name: "عصير برتقال طبيعي 1 لتر", price: 1.75, group: "المشروبات والعصائر", image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=100&auto=format&fit=crop&q=60" },
+                { barcode: "11114", name: "جبنة شيدر طبيعية 500غ", price: 3.25, group: "الألبان والأجبان", image: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=100&auto=format&fit=crop&q=60" }
+            ];
+            renderGroupedProducts(currentBranchProducts);
         }
 
         function renderGroupedProducts(productsList) {
@@ -443,7 +429,7 @@
             container.innerHTML = '';
 
             if(productsList.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة أو الجدول فارغ.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px;">لا توجد منتجات مطابقة.</p>';
                 return;
             }
 
@@ -465,7 +451,7 @@
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.innerHTML = `
-                        <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60'">
+                        <img src="${p.image}" class="product-img" alt="${p.name}">
                         <div class="product-info">
                             <h4>${p.name}</h4>
                             <p>باركود: ${p.barcode}</p>
@@ -516,7 +502,7 @@
             goToScreen('welcome-screen');
         }
 
-        window.onload = async function() {
+        window.onload = function() {
             const savedBranch = localStorage.getItem('jj_selected_branch');
             if(savedBranch) {
                 selectedBranchName = savedBranch;
