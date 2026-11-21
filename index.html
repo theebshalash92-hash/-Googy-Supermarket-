@@ -618,12 +618,19 @@
         // رابط Web App الخاص بـ Google Apps Script
         const sheetApiUrl = "https://script.google.com/macros/s/AKfycbykPWNaYfwteuWlPeRKLK2JQEdYUeMrYp3I7OrFXAQwuTF5SFcl_Rc6ThG3dZLVIchG9Q/exec";
 
-        // أرقام واتساب الفروع بصيغة دولية بدون + أو أصفار في البداية، مثال: '962791234567'
-        // إذا تُرك الرقم فارغاً سيختار الزبون جهة الاتصال بنفسه عند فتح واتساب.
+        // أرقام واتساب الفروع بصيغة دولية بدون + أو أصفار في البداية.
+        // كل طلب يصل على رقم الفرع الذي اختاره الزبون.
         const BRANCH_WHATSAPP = {
-            'الفرع الرئيسي - عبدون': '',
-            'فرع النخيل': ''
+            'الفرع الرئيسي - عبدون': '962793502626',
+            'فرع النخيل': '962781502626'
         };
+
+        // رابط Web App الخاص بـ Google Apps Script لتسجيل الطلبات في جوجل شيت
+        // (انظر apps-script/orders.gs وتعليمات README.md). إذا تُرك فارغاً لا يُسجَّل شيء في الشيت.
+        const ORDERS_API_URL = '';
+
+        // رقم الطلب الحالي: يبقى ثابتاً لو ضغط الزبون "إرسال" أكثر من مرة لنفس السلة، ويتجدد عند أي تغيير فيها
+        let pendingOrderId = null;
 
         const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=60';
         const ALL_IMG = 'https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=100&auto=format&fit=crop&q=60';
@@ -879,6 +886,7 @@
         }
 
         function saveCart() {
+            pendingOrderId = null; // أي تغيير في السلة = طلب جديد
             try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch { /* التخزين غير متاح */ }
         }
 
@@ -994,6 +1002,30 @@
             return document.getElementById(id).value.trim();
         }
 
+        function newOrderId() {
+            const d = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            return 'JJ-' + String(d.getFullYear()).slice(2) + pad(d.getMonth() + 1) + pad(d.getDate()) +
+                '-' + pad(d.getHours()) + pad(d.getMinutes()) +
+                '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+        }
+
+        // إرسال الطلب لسكربت جوجل شيت بدون انتظار رد (no-cors)؛ فشله لا يمنع إرسال الطلب عبر واتساب
+        function logOrderToSheet(order) {
+            if (!ORDERS_API_URL) return;
+            try {
+                fetch(ORDERS_API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    keepalive: true,
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(order)
+                }).catch(err => console.warn('تعذر تسجيل الطلب في الشيت', err));
+            } catch (err) {
+                console.warn('تعذر تسجيل الطلب في الشيت', err);
+            }
+        }
+
         function sendOrder() {
             const status = document.getElementById('order-status');
             const t = cartTotals();
@@ -1015,8 +1047,25 @@
                 ' × ' + it.qty + ' = ' + (it.price * it.qty).toFixed(2) + ' د.أ'
             );
 
+            if (!pendingOrderId) pendingOrderId = newOrderId();
+            const orderId = pendingOrderId;
+
+            // تسجيل الطلب في جوجل شيت (إن كان الرابط مضبوطاً)
+            logOrderToSheet({
+                orderId: orderId,
+                branch: selectedBranchName || 'غير محدد',
+                name: name,
+                phone: phone,
+                mode: isDelivery ? 'توصيل' : 'استلام من الفرع',
+                address: isDelivery ? address : '',
+                notes: notes,
+                items: t.items.map(it => ({ barcode: it.key !== it.name ? it.key : '', name: it.name, qty: it.qty, price: it.price })),
+                total: Number(t.total.toFixed(2))
+            });
+
             const parts = [
                 '🛒 طلب جديد - سوبر ماركت جي جي',
+                'رقم الطلب: ' + orderId,
                 'الفرع: ' + (selectedBranchName || 'غير محدد'),
                 '',
                 'الاسم: ' + name,
